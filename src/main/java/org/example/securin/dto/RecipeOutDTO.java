@@ -1,8 +1,5 @@
 package org.example.securin.dto;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Builder;
 import org.springframework.hateoas.server.core.Relation;
 
@@ -15,15 +12,14 @@ import java.util.Map;
 @Relation(collectionRelation = "recipes", itemRelation = "recipe")
 @Builder
 public record RecipeOutDTO(
-        Integer id,
-        String cuisine,
-        String title,
-        Object rating,
-        Object prep_time,
-        Object cook_time,
-        Object total_time,
-        String description,
-        Map<String, Object> nutrients,
-        String serves
-) {
+                Integer id,
+                String cuisine,
+                String title,
+                Object rating,
+                Object prep_time,
+                Object cook_time,
+                Object total_time,
+                String description,
+                Map<String, Object> nutrients,
+                String serves) {
 }

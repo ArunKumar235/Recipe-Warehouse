@@ -1,15 +1,12 @@
 package org.example.securin.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.Map;
-
 
 @Entity
 @Data

@@ -29,25 +29,25 @@ public class RecipeService {
 
     @Transactional
     public void loadRecipes(InputStream inputStream) {
-//        Non memory efficient way to load the entire file into memory at once, which can cause OutOfMemoryError for large files.
-//        try {
-//
-//            Map<String, RecipeDTO> map = new ObjectMapper().readValue(
-//                inputStream,
-//                new TypeReference<Map<String, RecipeDTO>>() {}
-//            );
-//            RecipeDTO[] dtos = map.values().toArray(new RecipeDTO[0]);
-//
-//            int batchSize = 1000;
-//            List<Recipe> batch = new ArrayList<>();
-//            for (RecipeDTO dto : dtos) {
+        // Non memory efficient way to load the entire file into memory at once, which
+        // can cause OutOfMemoryError for large files.
+        // try {
+        //
+        // Map<String, RecipeDTO> map = new ObjectMapper().readValue(
+        // inputStream,
+        // new TypeReference<Map<String, RecipeDTO>>() {}
+        // );
+        // RecipeDTO[] dtos = map.values().toArray(new RecipeDTO[0]);
+        //
+        // int batchSize = 1000;
+        // List<Recipe> batch = new ArrayList<>();
+        // for (RecipeDTO dto : dtos) {
 
-
-
-//         Use Jackson streaming to handle large files
+        // Use Jackson streaming to handle large files
         try (JsonParser parser = objectMapper.getFactory().createParser(inputStream)) {
-//            In Jackson, nextToken() returns the token it just landed on, and the "pointer" stays on that token.
-//            It doesn't move past it until the next time you call the method.
+            // In Jackson, nextToken() returns the token it just landed on, and the
+            // "pointer" stays on that token.
+            // It doesn't move past it until the next time you call the method.
             if (parser.nextToken() != JsonToken.START_OBJECT) {
                 throw new IllegalStateException("Expected JSON Object at root");
             }
@@ -58,10 +58,13 @@ public class RecipeService {
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 // Current token is FIELD_NAME (e.g., "0")
 
-                JsonToken valueToken = parser.nextToken(); // Returns { and points to the start of the recipe object
-                RecipeInDTO dto = objectMapper.readValue(parser, RecipeInDTO.class); // readValue will consume the entire object ( '{' to '}' ) for this recipe, until it reaches the next END_OBJECT
-                // readValue will load the entire object into memory, but since we're processing one recipe at a time, it should be manageable even for large files.
-
+                parser.nextToken(); // Returns { and points to the start of the recipe object
+                RecipeInDTO dto = objectMapper.readValue(parser, RecipeInDTO.class); // readValue will consume the
+                                                                                     // entire object ( '{' to '}' ) for
+                                                                                     // this recipe, until it reaches
+                                                                                     // the next END_OBJECT
+                // readValue will load the entire object into memory, but since we're processing
+                // one recipe at a time, it should be manageable even for large files.
 
                 Recipe recipe = Recipe.builder()
                         .cuisine(dto.cuisine())
@@ -75,12 +78,12 @@ public class RecipeService {
                         .serves(dto.serves())
                         .build();
                 batch.add(recipe);
-                if(batch.size() >= batchSize){
+                if (batch.size() >= batchSize) {
                     repo.saveAll(batch);
                     batch.clear();
                 }
             }
-            if(!batch.isEmpty()) {
+            if (!batch.isEmpty()) {
                 repo.saveAll(batch);
             }
         } catch (Exception e) {
@@ -92,14 +95,16 @@ public class RecipeService {
         return repo.findAll(makeNullLast(pageable));
     }
 
-//    public Page<Recipe> getAllRecipes(int page, int size, String sortBy, String sortOrder) {
-//        Sort sort = Sort.by(
-//            new Sort.Order(sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC, sortBy).nullsLast()
-//        ).and(Sort.by(new Sort.Order(Sort.Direction.ASC, "id")));
-//
-//        Pageable pageable = PageRequest.of(page, size, sort);
-//        return repo.findAll(pageable);
-//    }
+    // public Page<Recipe> getAllRecipes(int page, int size, String sortBy, String
+    // sortOrder) {
+    // Sort sort = Sort.by(
+    // new Sort.Order(sortOrder.equalsIgnoreCase("desc") ? Sort.Direction.DESC :
+    // Sort.Direction.ASC, sortBy).nullsLast()
+    // ).and(Sort.by(new Sort.Order(Sort.Direction.ASC, "id")));
+    //
+    // Pageable pageable = PageRequest.of(page, size, sort);
+    // return repo.findAll(pageable);
+    // }
 
     public Page<Recipe> searchRecipes(Specification<Recipe> specification, Pageable pageable) {
         return repo.findAll(specification, makeNullLast(pageable));
@@ -108,10 +113,9 @@ public class RecipeService {
     private static Pageable makeNullLast(Pageable pageable) {
         Sort baseSort = pageable.getSort().isSorted()
                 ? Sort.by(
-                pageable.getSort().stream()
-                        .map(o -> new Sort.Order(o.getDirection(), o.getProperty()).nullsLast())
-                        .toList()
-        )
+                        pageable.getSort().stream()
+                                .map(o -> new Sort.Order(o.getDirection(), o.getProperty()).nullsLast())
+                                .toList())
                 : Sort.unsorted();
 
         boolean hasIdSort = baseSort.stream().anyMatch(o -> "id".equalsIgnoreCase(o.getProperty()));
